@@ -1,13 +1,14 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Hannes Furmans on 03.07.22.
 //
 
+import Crypto
 import Foundation
 import XCTest
-import Crypto
+
 @testable import SwiftDoubleRatchet
 
 final class AeadTests: XCTestCase {

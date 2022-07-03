@@ -1,18 +1,19 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Hannes Furmans on 03.07.22.
 //
 
-import Foundation
 import Crypto
+import Foundation
 
 func kdfRk(rk: SymmetricKey, dhOut: SharedSecret, info: Data) -> (SymmetricKey, SymmetricKey) {
     let rkData = rk.withUnsafeBytes { m -> Data in
         Data(m[0..<32])
     }
-    let concatedData = dhOut.hkdfDerivedSymmetricKey(using: SHA512.self, salt: rkData, sharedInfo: info, outputByteCount: 64)
+    let concatedData = dhOut.hkdfDerivedSymmetricKey(
+        using: SHA512.self, salt: rkData, sharedInfo: info, outputByteCount: 64)
     return concatedData.withUnsafeBytes { m -> (SymmetricKey, SymmetricKey) in
         let rootKeyBytes = m[0..<32]
         let rootKey = SymmetricKey(data: rootKeyBytes)

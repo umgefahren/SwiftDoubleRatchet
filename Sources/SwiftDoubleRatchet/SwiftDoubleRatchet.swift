@@ -1,5 +1,5 @@
-import Foundation
 import Crypto
+import Foundation
 
 let infoMessage: Data = "MyRatchet".data(using: .utf8)!
 
@@ -16,7 +16,7 @@ public struct Ratchet<C: Curve> {
         
         let p: Data
         let n: UInt
-
+        
     }
     
     public enum RatchetError: Error {
@@ -65,7 +65,7 @@ public struct Ratchet<C: Curve> {
     var Ns: UInt = .zero
     var Nr: UInt = .zero
     var PN: UInt = .zero
-    var Mkskipped: [PublicKeyNumber : SymmetricKey] = .init()
+    var Mkskipped: [PublicKeyNumber: SymmetricKey] = .init()
     public var MaxSkip: UInt = 10
     
     public init(sk: SymmetricKey, bobPublicKey: C.Pub) throws {
@@ -79,11 +79,14 @@ public struct Ratchet<C: Curve> {
         RK = sk
     }
     
-    public mutating func ratchetEncrypt<P: DataProtocol, AD: DataProtocol>(plaintext: P, ad: AD) throws -> (Header, Data) {
+    public mutating func ratchetEncrypt<P: DataProtocol, AD: DataProtocol>(plaintext: P, ad: AD)
+    throws -> (Header, Data)
+    {
         if case let Optional.some(curCKs) = CKs {
             let (newCKs, Mk) = kdfCk(ck: curCKs)
             CKs = newCKs
-            let header = Header.init(publicKey: DHs.publicKey.rawRepresentation, PN: .init(PN), Ns: .init(Ns))
+            let header = Header.init(
+                publicKey: DHs.publicKey.rawRepresentation, PN: .init(PN), Ns: .init(Ns))
             Ns += 1
             var concated = Data.init()
             concated.append(contentsOf: .init(ad))
@@ -95,7 +98,9 @@ public struct Ratchet<C: Curve> {
         }
     }
     
-    public mutating func ratchetDecrypt<C: DataProtocol, AD: DataProtocol>(header: Header, ciphertext: C, ad: AD) throws -> Data {
+    public mutating func ratchetDecrypt<C: DataProtocol, AD: DataProtocol>(
+        header: Header, ciphertext: C, ad: AD
+    ) throws -> Data {
         let plaintext = try trySkippedMessageKeys(header: header, ciphertext: ciphertext, ad: ad)
         if plaintext != nil {
             return plaintext!
@@ -114,7 +119,9 @@ public struct Ratchet<C: Curve> {
         return try decrypt(mk: mk!, ciphertext: ciphertext, ad: concated)
     }
     
-    private mutating func trySkippedMessageKeys<C: DataProtocol, AD: DataProtocol>(header: Header, ciphertext: C, ad: AD) throws -> Data? {
+    private mutating func trySkippedMessageKeys<C: DataProtocol, AD: DataProtocol>(
+        header: Header, ciphertext: C, ad: AD
+    ) throws -> Data? {
         let publicKeyNumber = PublicKeyNumber(p: header.publicKey, n: UInt(header.Ns))
         if case let Optional.some(mk) = Mkskipped.removeValue(forKey: publicKeyNumber) {
             var concated = Data.init()

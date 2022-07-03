@@ -1,13 +1,14 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Hannes Furmans on 03.07.22.
 //
 
+import Crypto
 import Foundation
 import XCTest
-import Crypto
+
 @testable import SwiftDoubleRatchet
 
 final class KdfTests: XCTestCase {
@@ -16,7 +17,8 @@ final class KdfTests: XCTestCase {
         let privateB = Curve25519.KeyAgreement.PrivateKey.init()
         let shared = try privateA.sharedSecretFromKeyAgreement(with: privateB.publicKey)
         
-        let (rk, ck) = kdfRk(rk: SymmetricKey(data: Data(count: 32)), dhOut: shared, info: Data.init(count: 32))
+        let (rk, ck) = kdfRk(
+            rk: SymmetricKey(data: Data(count: 32)), dhOut: shared, info: Data.init(count: 32))
         XCTAssertEqual(rk.bitCount / 8, 32, "Root Key is of invalid length")
         XCTAssertEqual(ck.bitCount / 8, 32, "Chain Key is of invalid length")
     }
