@@ -9,12 +9,12 @@ import Crypto
 import Foundation
 
 func kdfRk(rk: SymmetricKey, dhOut: SharedSecret, info: Data) -> (SymmetricKey, SymmetricKey) {
-    let rkData = rk.withUnsafeBytes { m -> Data in
+    let rkData = rk.withUnsafeBytes { m in
         Data(m[0..<32])
     }
     let concatedData = dhOut.hkdfDerivedSymmetricKey(
         using: SHA512.self, salt: rkData, sharedInfo: info, outputByteCount: 64)
-    return concatedData.withUnsafeBytes { m -> (SymmetricKey, SymmetricKey) in
+    return concatedData.withUnsafeBytes { m in
         let rootKeyBytes = m[0..<32]
         let rootKey = SymmetricKey(data: rootKeyBytes)
         let chainKeyBytes = m[32..<64]
