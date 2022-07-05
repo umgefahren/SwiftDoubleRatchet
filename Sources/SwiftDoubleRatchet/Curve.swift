@@ -37,7 +37,7 @@ public protocol Public {
 /// Behaviour defining a Curve
 public protocol Curve {
     /// corresponding private key
-    associatedtype Prv: Private where Prv.Pub.Type == Pub.Type
+    associatedtype Prv: Private where Prv.Pub == Pub
     /// corresponding public key
     associatedtype Pub
 }

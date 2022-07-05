@@ -15,7 +15,7 @@ extension UInt64 {
     var encodedBytes: Data {
         let value = self.littleEndian
         var ret: [UInt8] = [0, 0, 0, 0, 0, 0, 0, 0]
-        for index in 0...7 {
+        for index in 0..<8 {
             let offset = 8 * UInt64(index)
             let mask: UInt64 = 0b11111111 << offset
             let maskValue = mask & value
@@ -25,17 +25,13 @@ extension UInt64 {
         return Data(ret)
     }
     
-    init(array: [UInt8]) throws {
-        if array.count != 8 {
+    init<C: Collection>(collection: C) throws where C.Element == UInt8 {
+        guard collection.count == 8 else {
             throw UInt64DecodeError.invalidLength
         }
-        var value: UInt64 = 0
-        for index in 0...7 {
-            let element = array[index]
-            let offset = 8 * UInt64(index)
-            let mask: UInt64 = UInt64(element) << offset
-            value = value | mask
-        }
-        self = .init(littleEndian: value)
+        
+        self.init(littleEndian: collection.reduce(0) { partialResult, element in
+            (partialResult >> 8) | (UInt64(element) << 56)
+        })
     }
 }
